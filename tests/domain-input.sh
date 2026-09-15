@@ -12,7 +12,7 @@ for input in \
     'https://www.kzzou.cloud:443/' \
     '[https://www.kzzou.cloud](https://www.kzzou.cloud)'; do
     output=$(bash "$ROOT/install-3x-ui-caddy.sh" --render "$input")
-    [[ "$output" == *$'\nwww.kzzou.cloud {'* ]] || {
+    [[ "$output" == *$'\nhttps://www.kzzou.cloud:8443 {'* ]] || {
         printf 'FAIL: domain was not normalized: %s\n' "$input" >&2
         exit 1
     }

@@ -6,3 +6,4 @@ __pycache__/
 *.db
 *.db-*
 3x-ui-caddy-access.txt
+3x-ui-reality-node.json
