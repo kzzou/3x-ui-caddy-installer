@@ -27,6 +27,8 @@ curl -fL --retry 3 -o install-3x-ui-caddy.sh https://raw.githubusercontent.com/k
 
 如提示缺少 `curl`，先执行 `sudo apt-get update && sudo apt-get install -y curl`。
 
+域名参数也接受 `https://www.kzzou.cloud`、末尾 `/`、显式 `:443` 以及从聊天复制的 Markdown 链接；脚本会提取域名。粘贴内容含空格或 Markdown 符号时，使用单引号包住整个参数。页面路径、查询参数和其他端口会被拒绝，外部入口统一使用 HTTPS 443。
+
 部署前准备：
 
 1. 将域名（例如 `panel.example.com`）的 A 记录指向 VPS 公网 IPv4。若有 AAAA 记录，IPv6 也必须正确可达。
@@ -98,6 +100,12 @@ sudo systemctl reload caddy
 - [Caddy HTTPS 反向代理说明](https://caddyserver.com/docs/quick-starts/reverse-proxy)
 
 ## 本地测试
+
+域名输入回归测试（不下载软件、不启动服务）：
+
+```bash
+bash tests/domain-input.sh
+```
 
 `tests/smoke.sh` 在 Linux 临时目录下载并校验真实发行包，测试初始化、登录、监听地址、Caddy 路由与公开订阅 URL；不安装系统服务。测试仅启动临时 HTTP 监听，不申请证书。
 

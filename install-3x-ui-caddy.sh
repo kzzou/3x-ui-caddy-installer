@@ -19,6 +19,7 @@ usage() {
 用途：全新安装 3x-ui + Caddy，面板和订阅只监听 127.0.0.1。
 系统：Debian 12+ / Ubuntu 22.04+，systemd，amd64 / arm64。
 用法：sudo bash install-3x-ui-caddy.sh panel.example.com
+也可输入：https://panel.example.com 或 https://panel.example.com:443/
 预览：bash install-3x-ui-caddy.sh --render panel.example.com
 
 先将域名 A/AAAA 记录指向服务器，并放行 TCP 80、443（保留 SSH）。
@@ -26,6 +27,25 @@ Ubuntu 安装前会更新软件源并升级已安装的软件包，不自动重�
 脚本不修改防火墙，不覆盖已有 3x-ui/Caddy，不创建代理节点。
 登录信息保存在 /root/3x-ui-caddy-access.txt（权限 600）。
 EOF
+}
+
+normalize_domain_input() {
+    local input="$1"
+    local markdown_link='^\[[^][]+\]\((https?://[^[:space:]()]*)\)$'
+    # Accept pasted browser addresses, including links copied from chat.
+    input="${input#"${input%%[![:space:]]*}"}"
+    input="${input%"${input##*[![:space:]]}"}"
+    input="${input,,}"
+    if [[ "$input" =~ $markdown_link ]]; then
+        input="${BASH_REMATCH[1]}"
+    fi
+    case "$input" in
+        https://*) input="${input#https://}" ;;
+        http://*) input="${input#http://}" ;;
+    esac
+    input="${input%/}"
+    input="${input%:443}"
+    printf '%s' "$input"
 }
 
 validate_domain() {
@@ -200,10 +220,10 @@ main() {
     DOMAIN="${1:-}"
     if [[ -z "$DOMAIN" ]]; then
         [[ -t 0 ]] || die '请提供域名，例如：sudo bash install-3x-ui-caddy.sh panel.example.com'
-        read -r -p '请输入面板域名（不含 https:// 和路径）：' DOMAIN
+        read -r -p '请输入面板域名或网址（例如 https://panel.example.com）：' DOMAIN
     fi
-    DOMAIN="${DOMAIN,,}"
-    validate_domain "$DOMAIN" || die '域名格式无效；国际化域名请使用 punycode。'
+    DOMAIN=$(normalize_domain_input "$DOMAIN")
+    validate_domain "$DOMAIN" || die '请输入有效域名或 http(s) 网址；不支持页面路径、查询参数或非 443 端口，中文域名请使用 punycode。'
     if (( render )); then
         PANEL_PATH=/panel-preview SUB_PATH=/sub-preview
         JSON_PATH=/json-preview CLASH_PATH=/clash-preview
