@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+*.log
+.env
+.env.*
+*.db
+*.db-*
+3x-ui-caddy-access.txt
